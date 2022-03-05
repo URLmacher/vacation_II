@@ -1,0 +1,48 @@
+{
+  "exclude": [
+    "aurelia_project"
+  ],
+  "atom": {
+    "rewriteTsconfig": false
+  },
+  "compileOnSave": false,
+  "compilerOptions": {
+    "module": "esnext",
+    "skipLibCheck": true,
+    "types": [
+      "node"
+    ],
+    "typeRoots": [
+      "./node_modules/@types",
+      "../common/types",
+      "./types"
+    ],
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "inlineSourceMap": true,
+    "inlineSources": false,
+    "target": "es6",
+    "lib": [
+      "es2015",
+      "dom"
+    ],
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "baseUrl": "src",
+    "allowJs": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "downlevelIteration": true,
+    "useUnknownInCatchVariables": false
+  },
+  "include": [
+    "./src/**/*.ts",
+    "./test/**/*.ts",
+    "./types/**/*.d.ts",
+    "src/config.js"
+  ]
+}

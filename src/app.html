@@ -1,0 +1,18 @@
+<template>
+  <div class="game">
+    <h1 class="game__title">Breakout</h1>
+    <div class="game__controls">
+      <p class="game__controls-title">Play with Arrow keys or Mouse</p>
+      <p>Music: M</p>
+      <p>SFX: S</p>
+      <p>Volume: ↑ ↓</p>
+      <p>Start: Space</p>
+    </div>
+  </div>
+
+  <canvas class="canvas"
+          ref="canvas"></canvas>
+  <br />
+  <button click.delegate="play()">START</button>
+
+</template>

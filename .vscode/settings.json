@@ -1,0 +1,25 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "html.suggest.angular1": false,
+  "html.suggest.ionic": false,
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#dc0d4a",
+    "activityBar.activeBorder": "#143c04",
+    "activityBar.background": "#dc0d4a",
+    "activityBar.foreground": "#e7e7e7",
+    "activityBar.inactiveForeground": "#e7e7e799",
+    "activityBarBadge.background": "#143c04",
+    "activityBarBadge.foreground": "#e7e7e7",
+    "sash.hoverBorder": "#dc0d4a",
+    "statusBar.background": "#ac0a3a",
+    "statusBar.foreground": "#e7e7e7",
+    "statusBarItem.hoverBackground": "#dc0d4a",
+    "statusBarItem.remoteBackground": "#ac0a3a",
+    "statusBarItem.remoteForeground": "#e7e7e7",
+    "titleBar.activeBackground": "#ac0a3a",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveBackground": "#ac0a3a99",
+    "titleBar.inactiveForeground": "#e7e7e799"
+  },
+  "peacock.color": "#ac0a3a"
+}
