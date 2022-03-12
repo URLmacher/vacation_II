@@ -1,9 +1,6 @@
-.game {
-  display: flex;
-  justify-content: space-between;
-}
+@import 'src/resources/good-game/good-game';
 
 .canvas {
-  width: 800px;
+  width: 200px;
   height: 600px;
 }
