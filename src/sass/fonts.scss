@@ -1,0 +1,73 @@
+@mixin _font($weight, $size) {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: $weight;
+  font-size: $size;
+
+  font-stretch: normal;
+  font-style: normal;
+  line-height: normal;
+  margin: 0;
+}
+
+h1 {
+  @include _font(normal, 90px);
+  letter-spacing: -1.5px;
+}
+
+h2 {
+  @include _font(normal, 52px);
+  letter-spacing: -0.45px;
+}
+
+h3 {
+  @include _font(600, 44px);
+  letter-spacing: -0.5px;
+}
+
+h4 {
+  @include _font(600, 28px);
+  letter-spacing: 0.23px;
+}
+
+h5 {
+  @include _font(600, 20px);
+  letter-spacing: normal;
+  line-height: 1.2;
+}
+
+h6 {
+  @include _font(500, 16px);
+  letter-spacing: normal;
+  line-height: 1.25;
+}
+
+a {
+  @include _font(600, 10px);
+  letter-spacing: 1.2px;
+  line-height: 1.6;
+  text-decoration: none;
+  text-transform: uppercase;
+  color: var(--highlight-five);
+
+  a:hover {
+    color: var(--highlight-three);
+  }
+  a:active,
+  a:visited {
+    color: var(--text-color-strong);
+  }
+}
+
+p {
+  @include _font(normal, 15px);
+  letter-spacing: 0.5px;
+  line-height: 1.27;
+}
+
+small {
+  @include _font(normal, 11px);
+  letter-spacing: 0.5px;
+  line-height: 1.27;
+}

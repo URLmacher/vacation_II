@@ -1,0 +1,29 @@
+:root {
+  --highlight-one: rgb(205, 195, 146);
+  --highlight-two: rgb(232, 229, 218);
+  --highlight-three: rgb(158, 183, 229);
+  --highlight-four: rgb(100, 141, 229);
+  --highlight-five: rgb(48, 76, 137);
+  --glass: rgba(205, 195, 146, 0.25);
+  --glass-alt: rgba(205, 195, 146, 0.25);
+  --glass-active: rgba(158, 183, 229, 0.25);
+  --content-spacing: 24px;
+  --text-color-strong: #2c3e50;
+  --text-color-weak: #494e52;
+  --border-color: rgba(255, 255, 255, 0.18);
+  --border-radius: 8px;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  padding: 0;
+  color: var(--text-color-strong);
+}
+
+html {
+  background: var(--highlight-three);
+  background: linear-gradient(0deg, var(--highlight-three) 0%, var(--highlight-two) 50%, var(--highlight-one) 100%);
+  min-height: 100%;
+}

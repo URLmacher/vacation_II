@@ -38,6 +38,7 @@ interface IPaddle {
 
 @autoinject()
 export class GoodGame {
+  private element: HTMLElement;
   private canvas: HTMLCanvasElement | null = null;
   private ctx: CanvasRenderingContext2D | null = null;
   private subscriptionManager: SubscriptionManager;
@@ -46,12 +47,18 @@ export class GoodGame {
   private brickRowCount = 9;
   private brickColumnCount = 5;
   private delay = 500;
+  private timeoutId: number = 0;
+  private requestId: number = 0;
 
   private ball: IBall | null = null;
   private paddle: IPaddle | null = null;
   private bricks: IBrick[][] = [];
 
-  constructor(subscriptionManagerService: SubscriptionManagerService) {
+  constructor(
+    subscriptionManagerService: SubscriptionManagerService,
+    element: Element
+  ) {
+    this.element = element as HTMLElement;
     this.subscriptionManager = subscriptionManagerService.createSubscriptionManager();
   }
 
@@ -60,11 +67,20 @@ export class GoodGame {
     this.ctx = this.canvas.getContext('2d');
     assertNotNullOrUndefined(this.ctx, 'ctx cannot be null or undefined');
 
+    this.canvas.width = this.element.getBoundingClientRect().width / 2;
+    const heightRatio = 1.2;
+    this.canvas.height = this.canvas.width * heightRatio;
+
+    if(this.requestId && this.timeoutId) {
+      cancelAnimationFrame(this.requestId);
+      clearTimeout(this.timeoutId);
+    }
+
     // Create ball props
     this.ball = {
       x: this.canvas.width / 2,
       y: this.canvas.height / 2,
-      size: 10,
+      size: this.canvas.width / 50,
       speed: 4,
       dx: 4,
       dy: -4,
@@ -75,32 +91,14 @@ export class GoodGame {
     this.paddle = {
       x: this.canvas.width / 2 - 40,
       y: this.canvas.height - 20,
-      w: 80,
-      h: 10,
+      w: this.canvas.width / 5,
+      h: (this.canvas.width / 5) * heightRatio,
       speed: 8,
       dx: 0,
       visible: true
     };
 
-    // Create brick props
-    const brickInfo: IBrickInfo = {
-      w: 70,
-      h: 20,
-      padding: 10,
-      offsetX: 45,
-      offsetY: 60,
-      visible: true
-    };
-
-    // Create bricks
-    for(let i = 0;i < this.brickRowCount;i++) {
-      this.bricks[i] = [];
-      for(let j = 0;j < this.brickColumnCount;j++) {
-        const x = i * (brickInfo.w + brickInfo.padding) + brickInfo.offsetX;
-        const y = j * (brickInfo.h + brickInfo.padding) + brickInfo.offsetY;
-        this.bricks[i][j] = { x, y, ...brickInfo };
-      }
-    }
+    this.createBricks();
 
     this.update();
 
@@ -108,6 +106,37 @@ export class GoodGame {
     this.subscriptionManager.subscribeToDomEvent(window, 'keydown', (e) => this.keyDownHandler(e as KeyboardEvent));
     this.subscriptionManager.subscribeToDomEvent(window, 'keyup', (e) => this.keyUpHandler(e as KeyboardEvent));
     this.subscriptionManager.subscribeToDomEvent(window, 'mousemove', (e) => this.mouseMoveHandler(e as MouseEvent));
+  }
+
+  protected detached(): void {
+    this.subscriptionManager.disposeSubscriptions();
+  }
+
+  private createBricks(): void {
+    assertNotNullOrUndefined(this.canvas, 'canvas cannot be null or undefined');
+    const padding = (this.canvas.width / this.brickColumnCount) / 20;
+    const width = (this.canvas.width / this.brickColumnCount) - (padding);
+    const height = (this.canvas.height / this.brickRowCount) / 4;
+
+    // Create brick props
+    const brickInfo: IBrickInfo = {
+      w: width,
+      h: height,
+      padding: padding,
+      offsetX: padding / 2,
+      offsetY: height * 2,
+      visible: true
+    };
+
+    // Create bricks
+    for(let i = 0;i < this.brickColumnCount;i++) {
+      this.bricks[i] = [];
+      for(let j = 0;j < this.brickRowCount;j++) {
+        const x = i * (brickInfo.w + brickInfo.padding) + brickInfo.offsetX;
+        const y = j * (brickInfo.h + brickInfo.padding) + brickInfo.offsetY;
+        this.bricks[i][j] = { x, y, ...brickInfo };
+      }
+    }
   }
 
   private mouseMoveHandler(e: MouseEvent): void {
@@ -150,7 +179,7 @@ export class GoodGame {
     // Draw everything
     this.draw();
 
-    requestAnimationFrame(this.update.bind(this));
+    this.requestId = requestAnimationFrame(this.update.bind(this));
   }
 
   // Draw everything
@@ -187,7 +216,7 @@ export class GoodGame {
       this.paddle.visible = false;
 
       //After 0.5 sec restart the game
-      setTimeout(() => {
+      this.timeoutId = window.setTimeout(() => {
         assertNotNullOrUndefined(this.paddle, 'paddle cannot be null or undefined');
         assertNotNullOrUndefined(this.canvas, 'canvas cannot be null or undefined');
         assertNotNullOrUndefined(this.ball, 'ball cannot be null or undefined');
@@ -277,7 +306,6 @@ export class GoodGame {
     }
   }
 
-
   // Draw bricks on canvas
   private drawBricks(): void {
     this.bricks.forEach(column => {
@@ -298,8 +326,8 @@ export class GoodGame {
     assertNotNullOrUndefined(this.ctx, 'ctx cannot be null or undefined');
     assertNotNullOrUndefined(this.canvas, 'canvas cannot be null or undefined');
 
-    this.ctx.font = '20px Arial';
-    this.ctx.fillText(`Score: ${this.score}`, this.canvas.width - 100, 30);
+    this.ctx.font = `${this.canvas.width / 30}px Arial`;
+    this.ctx.fillText(`Score: ${this.score}`, (this.canvas.width / 100), (this.canvas.height / 30));
   }
 
   // Draw ball on canvas
