@@ -2,8 +2,10 @@ import { Ball } from 'parts/Ball';
 import { Brick } from 'parts/Brick';
 import { Game } from 'parts/Game';
 import { Paddle } from 'parts/Paddle';
+import { KeyboardKey, SubscriptionManager, SubscriptionManagerService } from 'services/SubscriptionManagerService';
 import { assertNotNullOrUndefined } from 'utils/assert';
 import './sass/style.scss';
+import { autoinject } from 'aurelia-framework';
 
 interface IBrickFieldBrick {
   x: number;
@@ -15,9 +17,11 @@ interface IBrickFieldBrick {
   hitsLeft: number;
 }
 
+@autoinject()
 export class App {
   private canvas: HTMLCanvasElement | null = null;
   private ctx: CanvasRenderingContext2D | null = null;
+  private subscriptionManager: SubscriptionManager;
 
   private game: Game | null = null;
   private paddle: Paddle | null = null;
@@ -29,15 +33,10 @@ export class App {
     ball: new Image(),
     paddle: new Image()
   };
-  private sounds: Record<string, HTMLAudioElement> = {
-    ballLost: new Audio('./sounds/ball-lost.mp3'),
-    breakout: new Audio('./sounds/breakout.mp3'),
-    brick: new Audio('./sounds/brick.mp3'),
-    gameOver: new Audio('./sounds/game-over.mp3'),
-    levelCompleted: new Audio('./sounds/level-completed.mp3'),
-    music: new Audio('./sounds/music.mp3'),
-    paddle: new Audio('./sounds/paddle.mp3')
-  };
+
+  constructor(subscriptionManagerService: SubscriptionManagerService) {
+    this.subscriptionManager = subscriptionManagerService.createSubscriptionManager();
+  }
 
   protected attached(): void {
     assertNotNullOrUndefined(this.canvas, 'canvas cannot be null or undefined');
@@ -47,9 +46,15 @@ export class App {
     this.ball = new Ball();
 
     this.ctx = this.canvas.getContext('2d');
-    this.initSounds();
     this.initImages();
     this.setStartState();
+    this.subscriptionManager.subscribeToDomEvent(window, 'keydown', (e) => this.keyDownHandler(e as KeyboardEvent));
+    this.subscriptionManager.subscribeToDomEvent(window, 'keyup', (e) => this.keyUpHandler(e as KeyboardEvent));
+    this.subscriptionManager.subscribeToDomEvent(window, 'mousemove', (e) => this.mouseMoveHandler(e as MouseEvent));
+  }
+
+  protected detached(): void {
+    this.subscriptionManager.disposeSubscriptions();
   }
 
   private initImages(): void {
@@ -61,9 +66,11 @@ export class App {
   private setStartState(): void {
     assertNotNullOrUndefined(this.ctx, 'ctx cannot be null or undefined');
     assertNotNullOrUndefined(this.canvas, 'canvas cannot be null or undefined');
+
     this.resetGame();
     this.initBricks();
     this.resetPaddle();
+
     this.paint();
     this.ctx.font = '50px ArcadeClassic';
     this.ctx.fillStyle = 'lime';
@@ -80,13 +87,9 @@ export class App {
     this.game.on = true;
 
     this.resetGame();
+    this.initBricks();
     this.resetBall();
     this.resetPaddle();
-    this.initBricks();
-
-    this.game.sfx && this.sounds.breakout.play();
-    // Start music after starting sound ends.
-    setTimeout(() => this.game?.music && this.sounds.music.play(), 2000);
 
     this.animate();
   }
@@ -98,17 +101,6 @@ export class App {
     this.game.level = 1;
     this.game.lives = 3;
     this.game.time = { start: performance.now(), elapsed: 0, refreshRate: 16 };
-  }
-
-  private initSounds(): void {
-    this.sounds.music.loop = true;
-    this.sounds.ballLost.volume = 0.5;
-    this.sounds.breakout.volume = 0.5;
-    this.sounds.brick.volume = 0.5;
-    this.sounds.gameOver.volume = 0.5;
-    this.sounds.levelCompleted.volume = 0.5;
-    this.sounds.music.volume = 0.5;
-    this.sounds.paddle.volume = 0.5;
   }
 
   private resetBall(): void {
@@ -169,7 +161,7 @@ export class App {
       if(this.isLevelCompleted() || this.isGameOver()) return;
     }
 
-    this.game.requestId = requestAnimationFrame(this.animate);
+    this.game.requestId = requestAnimationFrame(this.animate.bind(this));
   }
 
   private paint(): void {
@@ -181,6 +173,7 @@ export class App {
     this.ctx.drawImage(this.images.background, 0, 0, this.canvas.width, this.canvas.height);
     this.ctx.drawImage(this.images.ball, this.ball.x, this.ball.y, 2 * this.ball.radius, 2 * this.ball.radius);
     this.ctx.drawImage(this.images.paddle, this.paddle.x, this.paddle.y, this.paddle.width, this.paddle.height);
+
     this.drawBricks();
     this.drawScore();
     this.drawLives();
@@ -272,7 +265,6 @@ export class App {
     if(hitPaddle()) {
       this.ball.dy = -this.ball.dy;
       this.ball.y = this.canvas.height - this.paddle.height - 2 * this.ball.radius;
-      this.game.sfx && this.sounds.paddle.play();
       // TODO change this logic to angles with sin/cos
       // Change x depending on where on the paddle the ball bounces.
       // Bouncing ball more on one side draws ball a little to that side.
@@ -294,8 +286,6 @@ export class App {
 
     this.brickField.forEach((brick) => {
       if(brick.hitsLeft && isBallInsideBrick(brick)) {
-        this.sounds.brick.currentTime = 0;
-        this.game?.sfx && this.sounds.brick.play();
         brick.hitsLeft--;
         if(brick.hitsLeft === 1) {
           brick.color = 'darkgray';
@@ -325,47 +315,6 @@ export class App {
     }
   }
 
-  private keyDownHandler(e: KeyboardEvent): void {
-    if(!this.game?.on && e.key === ' ') {
-      this.play();
-    }
-    if(this.game?.on && (e.key === 'm' || e.key === 'M')) {
-      this.game.music = !this.game.music;
-      this.game.music ? this.sounds.music.play() : this.sounds.music.pause();
-    }
-    if(this.game?.on && (e.key === 's' || e.key === 'S')) {
-      this.game.sfx = !this.game.sfx;
-    }
-    if(e.key === 'ArrowUp') {
-      this.volumeUp();
-    }
-    if(e.key === 'ArrowDown') {
-      this.volumeDown();
-    }
-    if(this.game && e.key === 'ArrowRight') {
-      this.game.rightKey = true;
-    } else if(this.game && e.key === 'ArrowLeft') {
-      this.game.leftKey = true;
-    }
-  }
-
-  private keyUpHandler(e: KeyboardEvent): void {
-    if(this.game && e.key === 'ArrowRight') {
-      this.game.rightKey = false;
-    } else if(this.game && e.key === 'ArrowLeft') {
-      this.game.leftKey = false;
-    }
-  }
-
-  private mouseMoveHandler(e: MouseEvent): void {
-    const mouseX = e.clientX - (this.canvas?.offsetLeft ?? 0);
-    const isInsideCourt = (): boolean => !!this.canvas && mouseX > 0 && mouseX < this.canvas.width;
-
-    if(isInsideCourt() && this.paddle) {
-      this.paddle.x = mouseX - this.paddle.width / 2;
-    }
-  }
-
   private isLevelCompleted(): boolean {
     assertNotNullOrUndefined(this.game, 'game cannot be null or undefined');
 
@@ -378,7 +327,6 @@ export class App {
       this.initBricks();
       this.game.timeoutId = window.setTimeout(() => {
         this.animate();
-        this.sounds.music.play();
       }, 3000);
 
       return true;
@@ -393,8 +341,6 @@ export class App {
 
     this.game.level++;
     this.game.speed++;
-    this.sounds.music.pause();
-    this.game.sfx && this.sounds.levelCompleted.play();
     this.ctx.font = '50px ArcadeClassic';
     this.ctx.fillStyle = 'yellow';
     this.ctx.fillText(`LEVEL ${this.game.level}!`, this.canvas.width / 2 - 80, this.canvas.height / 2);
@@ -407,7 +353,6 @@ export class App {
 
     if(isBallLost()) {
       this.game.lives -= 1;
-      this.game.sfx && this.sounds.ballLost.play();
       if(this.game.lives === 0) {
         this.gameOver();
         return true;
@@ -424,28 +369,37 @@ export class App {
     assertNotNullOrUndefined(this.canvas, 'canvas cannot be null or undefined');
 
     this.game.on = false;
-    this.sounds.music.pause();
-    this.sounds.music.currentTime = 0;
-    this.game.sfx && this.sounds.gameOver.play();
     this.ctx.font = '50px ArcadeClassic';
     this.ctx.fillStyle = 'red';
     this.ctx.fillText('GAME OVER', this.canvas.width / 2 - 100, this.canvas.height / 2);
   }
 
-  private volumeDown() {
-    if(this.sounds.music.volume >= 0.1) {
-      for(const [key] of Object.entries(this.sounds)) {
-        this.sounds[key].volume -= 0.1;
-      }
+  private keyDownHandler(e: KeyboardEvent): void {
+    if(!this.game?.on && e.key === KeyboardKey.Space) {
+      this.play();
+    }
+
+    if(this.game && e.key === KeyboardKey.ArrowRight) {
+      this.game.rightKey = true;
+    } else if(this.game && e.key === KeyboardKey.ArrowLeft) {
+      this.game.leftKey = true;
     }
   }
 
+  private keyUpHandler(e: KeyboardEvent): void {
+    if(this.game && e.key === KeyboardKey.ArrowRight) {
+      this.game.rightKey = false;
+    } else if(this.game && e.key === KeyboardKey.ArrowLeft) {
+      this.game.leftKey = false;
+    }
+  }
 
-  private volumeUp() {
-    if(this.sounds.music.volume <= 0.9) {
-      for(const [key] of Object.entries(this.sounds)) {
-        this.sounds[key].volume += 0.1;
-      }
+  private mouseMoveHandler(e: MouseEvent): void {
+    const mouseX = e.clientX - (this.canvas?.offsetLeft ?? 0);
+    const isInsideCourt = (): boolean => !!this.canvas && mouseX > 0 && mouseX < this.canvas.width;
+
+    if(isInsideCourt() && this.paddle) {
+      this.paddle.x = mouseX - this.paddle.width / 2;
     }
   }
 }
