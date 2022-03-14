@@ -1,15 +1,14 @@
 .good-game {
-  background-color: #0095dd;
   display: flex;
   flex-direction: column;
+  height: 100%;
   align-items: center;
   justify-content: center;
   font-family: Arial, Helvetica, sans-serif;
-  min-height: 100vh;
   margin: 0;
 
   &__canvas {
-    background: #f0f0f0;
+    background: var(--highlight-five);
     display: block;
     border-radius: 5px;
     border: 1px solid;

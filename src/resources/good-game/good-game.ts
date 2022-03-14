@@ -67,14 +67,32 @@ export class GoodGame {
     this.ctx = this.canvas.getContext('2d');
     assertNotNullOrUndefined(this.ctx, 'ctx cannot be null or undefined');
 
-    this.canvas.width = this.element.getBoundingClientRect().width / 2;
-    const heightRatio = 1.2;
-    this.canvas.height = this.canvas.width * heightRatio;
 
     if(this.requestId && this.timeoutId) {
       cancelAnimationFrame(this.requestId);
       clearTimeout(this.timeoutId);
     }
+
+    this.updateSizes();
+    this.update();
+
+    // Keyboard event handlers
+    this.subscriptionManager.subscribeToDomEvent(window, 'keydown', (e) => this.keyDownHandler(e as KeyboardEvent));
+    this.subscriptionManager.subscribeToDomEvent(window, 'keyup', (e) => this.keyUpHandler(e as KeyboardEvent));
+    this.subscriptionManager.subscribeToDomEvent(window, 'mousemove', (e) => this.mouseMoveHandler(e as MouseEvent));
+    this.subscriptionManager.subscribeToResize(() => { this.updateSizes(); });
+  }
+
+  protected detached(): void {
+    this.subscriptionManager.disposeSubscriptions();
+  }
+
+  private updateSizes(): void {
+    assertNotNullOrUndefined(this.canvas, 'canvas cannot be null or undefined');
+    const { width } = this.element.getBoundingClientRect();
+    const heightRatio = 1.2;
+    this.canvas.width = width / 2;
+    this.canvas.height = this.canvas.width * heightRatio;
 
     // Create ball props
     this.ball = {
@@ -88,49 +106,38 @@ export class GoodGame {
     };
 
     // Create paddle props
+    const paddleHeight = (this.canvas.height / 20);
+    const paddleWidth = this.canvas.width / 2;
+    console.log(paddleHeight);
     this.paddle = {
-      x: this.canvas.width / 2 - 40,
-      y: this.canvas.height - 20,
-      w: this.canvas.width / 5,
-      h: (this.canvas.width / 5) * heightRatio,
+      x: (this.canvas.width / 2) - (paddleWidth / 2),
+      y: this.canvas.height - paddleHeight,
+      w: paddleWidth,
+      h: paddleHeight,
       speed: 8,
       dx: 0,
       visible: true
     };
 
-    this.createBricks();
-
-    this.update();
-
-    // Keyboard event handlers
-    this.subscriptionManager.subscribeToDomEvent(window, 'keydown', (e) => this.keyDownHandler(e as KeyboardEvent));
-    this.subscriptionManager.subscribeToDomEvent(window, 'keyup', (e) => this.keyUpHandler(e as KeyboardEvent));
-    this.subscriptionManager.subscribeToDomEvent(window, 'mousemove', (e) => this.mouseMoveHandler(e as MouseEvent));
-  }
-
-  protected detached(): void {
-    this.subscriptionManager.disposeSubscriptions();
-  }
-
-  private createBricks(): void {
-    assertNotNullOrUndefined(this.canvas, 'canvas cannot be null or undefined');
-    const padding = (this.canvas.width / this.brickColumnCount) / 20;
-    const width = (this.canvas.width / this.brickColumnCount) - (padding);
-    const height = (this.canvas.height / this.brickRowCount) / 4;
 
     // Create brick props
+    const padding = (this.canvas.width / this.brickColumnCount) / 20;
+    const brickWidth = (this.canvas.width / this.brickColumnCount) - (padding);
+    const brickHeight = (this.canvas.height / this.brickRowCount) / 4;
+
     const brickInfo: IBrickInfo = {
-      w: width,
-      h: height,
+      w: brickWidth,
+      h: brickHeight,
       padding: padding,
       offsetX: padding / 2,
-      offsetY: height * 2,
+      offsetY: brickHeight * 2,
       visible: true
     };
 
     // Create bricks
     for(let i = 0;i < this.brickColumnCount;i++) {
-      this.bricks[i] = [];
+      this.bricks[i] = this.bricks[i] ?? [];
+
       for(let j = 0;j < this.brickRowCount;j++) {
         const x = i * (brickInfo.w + brickInfo.padding) + brickInfo.offsetX;
         const y = j * (brickInfo.h + brickInfo.padding) + brickInfo.offsetY;
@@ -222,11 +229,8 @@ export class GoodGame {
         assertNotNullOrUndefined(this.ball, 'ball cannot be null or undefined');
 
         this.showAllBricks();
+        this.updateSizes();
         this.score = 0;
-        this.paddle.x = this.canvas.width / 2 - 40;
-        this.paddle.y = this.canvas.height - 20;
-        this.ball.x = this.canvas.width / 2;
-        this.ball.y = this.canvas.height / 2;
         this.ball.visible = true;
         this.paddle.visible = true;
       }, this.delay);

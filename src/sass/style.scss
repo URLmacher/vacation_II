@@ -2,7 +2,18 @@
 @import './fonts';
 @import 'src/resources/good-game/good-game';
 
-.canvas {
-  width: 200px;
-  height: 600px;
+.app {
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--highlight-two);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &__game {
+    width: 100%;
+
+    max-width: 800px;
+    max-height: 80vh;
+  }
 }
