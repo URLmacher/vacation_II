@@ -1,4 +1,12 @@
 <template class="good-game">
-  <canvas class="good-game__canvas"
-          ref="canvas"></canvas>
+  <div class="good-game__content">
+    <canvas class="good-game__canvas"
+            ref="canvas"></canvas>
+    <div class="good-game__overlay ${overlayVisible ? 'good-game__overlay--visible' : ''}">
+      <button class="good-game__button"
+              click.delegate="startGame()">
+        ${ texts.goodGame.btnText }
+      </button>
+    </div>
+  </div>
 </template>

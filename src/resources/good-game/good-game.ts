@@ -1,6 +1,7 @@
 import { autoinject } from 'aurelia-framework';
-import { KeyboardKey, SubscriptionManager, SubscriptionManagerService } from 'services/SubscriptionManagerService';
-import { assertNotNullOrUndefined } from 'utils/assert';
+import { texts } from '../data/texts';
+import { KeyboardKey, SubscriptionManager, SubscriptionManagerService } from '../../services/SubscriptionManagerService';
+import { assertNotNullOrUndefined } from '../../utils/assert';
 
 interface IBrickInfo {
   w: number;
@@ -50,6 +51,9 @@ export class GoodGame {
   private timeoutId: number = 0;
   private requestId: number = 0;
 
+  private overlayVisible = true;
+  private texts = texts;
+
   private ball: IBall | null = null;
   private paddle: IPaddle | null = null;
   private bricks: IBrick[][] = [];
@@ -66,7 +70,6 @@ export class GoodGame {
     assertNotNullOrUndefined(this.canvas, 'canvas cannot be null or undefined');
     this.ctx = this.canvas.getContext('2d');
     assertNotNullOrUndefined(this.ctx, 'ctx cannot be null or undefined');
-
 
     if(this.requestId && this.timeoutId) {
       cancelAnimationFrame(this.requestId);
@@ -85,6 +88,10 @@ export class GoodGame {
 
   protected detached(): void {
     this.subscriptionManager.disposeSubscriptions();
+  }
+
+  private startGame(): void {
+    this.overlayVisible = false;
   }
 
   private updateSizes(): void {
@@ -108,7 +115,6 @@ export class GoodGame {
     // Create paddle props
     const paddleHeight = (this.canvas.height / 20);
     const paddleWidth = this.canvas.width / 2;
-    console.log(paddleHeight);
     this.paddle = {
       x: (this.canvas.width / 2) - (paddleWidth / 2),
       y: this.canvas.height - paddleHeight,
@@ -147,9 +153,8 @@ export class GoodGame {
   }
 
   private mouseMoveHandler(e: MouseEvent): void {
-    const mouseX = e.clientX - (this.canvas?.offsetLeft ?? 0);
+    const mouseX = e.clientX - (this.canvas?.getBoundingClientRect().left ?? 0);
     const isInsideCourt = (): boolean => !!this.canvas && mouseX > 0 && mouseX < this.canvas.width;
-
     if(isInsideCourt() && this.paddle) {
       this.paddle.x = mouseX - this.paddle.w / 2;
     }
