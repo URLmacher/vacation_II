@@ -108,21 +108,24 @@ export class GoodGame {
   }
 
   private startGame(): void {
+    assertNotNullOrUndefined(this.ball, 'ball cannot be null or undefined');
+    assertNotNullOrUndefined(this.paddle, 'paddle cannot be null or undefined');
+
     if(this.requestId && this.timeoutId) {
       cancelAnimationFrame(this.requestId);
       clearTimeout(this.timeoutId);
     }
+
     this.overlayVisible = false;
+    this.score = 0;
+    this.ball.visible = true;
+    this.paddle.visible = true;
 
     this.showAllBricks();
     this.updateSizes();
-    this.score = 0;
+    this.draw();
+
     this.timeoutId = window.setTimeout(() => {
-      assertNotNullOrUndefined(this.paddle, 'paddle cannot be null or undefined');
-      assertNotNullOrUndefined(this.canvas, 'canvas cannot be null or undefined');
-      assertNotNullOrUndefined(this.ball, 'ball cannot be null or undefined');
-      this.ball.visible = true;
-      this.paddle.visible = true;
       this.update();
     }, this.delay);
   }
@@ -139,9 +142,9 @@ export class GoodGame {
       x: this.canvas.width / 2,
       y: this.canvas.height / 2,
       size: this.canvas.width / 50,
-      speed: 4,
+      speed: 8,
       dx: 4,
-      dy: -4,
+      dy: 8,
       visible: true,
     };
 
@@ -160,14 +163,14 @@ export class GoodGame {
 
     // Create brick props
     const padding = this.canvas.width / this.brickColumnCount / 20;
-    const brickWidth = this.canvas.width / this.brickColumnCount - padding;
+    const brickWidth = this.canvas.width / this.brickColumnCount - (padding + padding / this.brickColumnCount);
     const brickHeight = this.canvas.height / this.brickRowCount / 4;
 
     const brickInfo: IBrickInfo = {
       w: brickWidth,
       h: brickHeight,
       padding: padding,
-      offsetX: padding / 2,
+      offsetX: (padding),
       offsetY: padding,
       visible: true,
     };
@@ -176,6 +179,7 @@ export class GoodGame {
     // Create bricks
     for(let i = 0;i < this.brickColumnCount;i++) {
       this.bricks[i] = this.bricks[i] ?? [];
+
       for(let j = 0;j < this.brickRowCount;j++) {
         const x = i * (brickInfo.w + brickInfo.padding) + brickInfo.offsetX;
         const y = j * (brickInfo.h + brickInfo.padding) + brickInfo.offsetY;
@@ -187,18 +191,14 @@ export class GoodGame {
     }
   }
 
-  // Update canvas drawing and animation
   private update(): void {
     this.movePaddle();
     this.moveBall();
-
-    // Draw everything
     this.draw();
 
     this.requestId = requestAnimationFrame(this.update.bind(this));
   }
 
-  // Draw everything
   private draw(): void {
     assertNotNullOrUndefined(this.canvas, 'canvas cannot be null or undefined');
     assertNotNullOrUndefined(this.ctx, 'ctx cannot be null or undefined');
@@ -211,7 +211,6 @@ export class GoodGame {
     this.drawBricks();
   }
 
-  // Make all bricks appear
   private showAllBricks() {
     this.bricks.forEach(column => {
       column.forEach(brick => {
@@ -221,7 +220,6 @@ export class GoodGame {
     });
   }
 
-  // Increase score
   private increaseScore(): void {
     assertNotNullOrUndefined(this.ball, 'ball cannot be null or undefined');
     assertNotNullOrUndefined(this.paddle, 'paddle cannot be null or undefined');
@@ -231,23 +229,10 @@ export class GoodGame {
     if(this.score % (this.brickRowCount * this.brickColumnCount) === 0) {
       this.ball.visible = false;
       this.paddle.visible = false;
-
-      //After 0.5 sec restart the game
-      this.timeoutId = window.setTimeout(() => {
-        assertNotNullOrUndefined(this.paddle, 'paddle cannot be null or undefined');
-        assertNotNullOrUndefined(this.canvas, 'canvas cannot be null or undefined');
-        assertNotNullOrUndefined(this.ball, 'ball cannot be null or undefined');
-
-        this.showAllBricks();
-        this.updateSizes();
-        this.score = 0;
-        this.ball.visible = true;
-        this.paddle.visible = true;
-      }, this.delay);
+      this.overlayVisible = true;
     }
   }
 
-  // Move ball on canvas
   private moveBall(): void {
     assertNotNullOrUndefined(this.ball, 'ball cannot be null or undefined');
     assertNotNullOrUndefined(this.paddle, 'paddle cannot be null or undefined');
@@ -281,7 +266,6 @@ export class GoodGame {
       this.ball.dy = -this.ball.speed;
     }
 
-    // Brick collision
     this.bricks.forEach(column => {
       column.forEach(brick => {
         assertNotNullOrUndefined(this.ball, 'ball cannot be null or undefined');
@@ -310,7 +294,6 @@ export class GoodGame {
     }
   }
 
-  // Move paddle on canvas
   private movePaddle(): void {
     assertNotNullOrUndefined(this.paddle, 'paddle cannot be null or undefined');
     assertNotNullOrUndefined(this.canvas, 'canvas cannot be null or undefined');
@@ -327,7 +310,6 @@ export class GoodGame {
     }
   }
 
-  // Draw bricks on canvas
   private drawBricks(): void {
     this.bricks.forEach(column => {
       column.forEach(brick => {
@@ -349,7 +331,6 @@ export class GoodGame {
     });
   }
 
-  // Draw ball on canvas
   private drawBall(): void {
     assertNotNullOrUndefined(this.ctx, 'ctx cannot be null or undefined');
     assertNotNullOrUndefined(this.ball, 'ball cannot be null or undefined');
@@ -361,7 +342,6 @@ export class GoodGame {
     this.ctx.closePath();
   }
 
-  // Draw paddle on canvas
   private drawPaddle(): void {
     assertNotNullOrUndefined(this.ctx, 'ctx cannot be null or undefined');
     assertNotNullOrUndefined(this.paddle, 'paddle cannot be null or undefined');
@@ -373,7 +353,6 @@ export class GoodGame {
     this.ctx.closePath();
   }
 
-  // mouseMove
   private mouseMoveHandler(e: MouseEvent): void {
     const mouseX = e.clientX - (this.canvas?.getBoundingClientRect().left ?? 0);
     const isInsideCourt = (): boolean =>
@@ -383,7 +362,6 @@ export class GoodGame {
     }
   }
 
-  // Keyup event
   private keyUpHandler(e: KeyboardEvent): void {
     assertNotNullOrUndefined(this.paddle, 'paddle cannot be null or undefined');
 
@@ -392,7 +370,6 @@ export class GoodGame {
     }
   }
 
-  // Keydown event
   private keyDownHandler(e: KeyboardEvent): void {
     assertNotNullOrUndefined(this.paddle, 'paddle cannot be null or undefined');
 
