@@ -1,5 +1,6 @@
 export const texts = {
   goodGame: {
-    btnText: 'Start'
+    btnText: 'Start',
+    thanks: 'Danke'
   }
 };
