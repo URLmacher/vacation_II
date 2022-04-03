@@ -5,14 +5,17 @@
 .app {
   min-height: 100vh;
   width: 100%;
-  background-color: var(--highlight-two);
+  background-color: var(--color-three);
+  background-image: repeating-linear-gradient(45deg, var(--color-two) 25%, transparent 25%, transparent 75%, var(--color-two) 75%, var(--color-two)),
+    repeating-linear-gradient(45deg, var(--color-two) 25%, var(--color-three) 25%, var(--color-three) 75%, var(--color-two) 75%, var(--color-two));
+  background-position: 0 0, 10px 10px;
+  background-size: 20px 20px;
   display: flex;
   justify-content: center;
   align-items: center;
 
   &__game {
     width: 100%;
-
     max-width: 1200px;
     max-height: 80vh;
   }

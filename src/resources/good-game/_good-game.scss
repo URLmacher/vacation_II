@@ -1,5 +1,6 @@
 :root {
   --overlay-animation-time: 0.9s;
+  --good-game-scale-factor: 1;
 }
 
 .good-game {
@@ -12,27 +13,31 @@
   &__content {
     width: min-content;
     position: relative;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    border: 2px solid var(--color-five);
   }
 
   &__canvas {
-    background-color: var(--highlight-five);
+    background-color: var(--color-five);
     display: block;
     border-radius: 5px;
     border: 1px solid;
   }
 
   &__overlay {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
     top: 0;
     height: 100%;
     width: 100%;
     position: absolute;
-    background-color: var(--highlight-one);
-    display: flex;
-    justify-content: center;
+    background-color: var(--color-one);
     opacity: 0;
-    transition: opacity var(--overlay-animation-time) ease, var(--overlay-animation-time) ease;
     visibility: hidden;
     pointer-events: none;
+    transition: opacity var(--overlay-animation-time) ease, var(--overlay-animation-time) ease;
 
     &--visible {
       opacity: 1;
@@ -41,16 +46,24 @@
     }
   }
 
+  &__title {
+    font-size: calc(38px * var(--good-game-scale-factor));
+    letter-spacing: calc(1.2px * var(--good-game-scale-factor));
+    margin: 0 auto calc(40px * var(--good-game-scale-factor)) auto;
+    color: var(--color-five);
+  }
+
   &__button {
-    padding: 8px;
-    border: 2px solid var(--highlight-five);
-    background-color: var(--glass-active);
+    border: 2px solid var(--color-five);
+    border-radius: var(--border-radius);
+    padding: calc(8px * var(--good-game-scale-factor)) calc(18px * var(--good-game-scale-factor));
+    font-size: calc(14px * var(--good-game-scale-factor));
+    background-color: var(--color-two);
     transition: background-color 0.3s linear;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    align-self: center;
-    font-family: inherit;
-    cursor: pointer;
+    color: var(--color-five);
+
+    &:hover {
+      background-color: var(--color-one);
+    }
   }
 }

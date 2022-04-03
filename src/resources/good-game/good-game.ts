@@ -10,9 +10,9 @@ import { format } from 'date-fns';
 import { dates } from '../data/dates';
 
 enum EColors {
-  Primary = '#0095dd',
+  Primary = '#e0d68a',
   Transparent = 'transparent',
-  Secondary = '#ffffff'
+  Secondary = '#cb9173'
 }
 
 interface IBrickInfo {
@@ -66,6 +66,7 @@ export class GoodGame {
   private requestId: number = 0;
 
   private overlayVisible = true;
+  private scaleFactor = 1;
   private texts = texts;
   private dates: string[] = dates;
 
@@ -136,6 +137,7 @@ export class GoodGame {
     const heightRatio = 1.2;
     this.canvas.width = width / 2;
     this.canvas.height = this.canvas.width * heightRatio;
+    this.scaleFactor = width / 1280;
 
     // Create ball props
     this.ball = {
@@ -322,11 +324,11 @@ export class GoodGame {
         this.ctx.fill();
         this.ctx.closePath();
 
-        this.ctx.font = `${this.canvas.width / 30}px Arial`;
+        this.ctx.font = `${this.canvas.width / 30}px 'Luckiest Guy'`;
         this.ctx.fillStyle = EColors.Secondary;
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
-        this.ctx.fillText(brick.text, brick.x + (brick.w / 2), brick.y + (brick.h / 2));
+        this.ctx.fillText(brick.text, brick.x + (brick.w / 2), brick.y + (brick.h / 1.7));
       });
     });
   }

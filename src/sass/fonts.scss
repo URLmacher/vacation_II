@@ -1,5 +1,5 @@
 @mixin _font($weight, $size) {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Luckiest Guy', Helvetica, Arial, cursive, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-weight: $weight;
@@ -50,10 +50,10 @@ button {
   line-height: 1.6;
   text-decoration: none;
   text-transform: uppercase;
-  color: var(--highlight-five);
+  color: var(--color-five);
 
   a:hover {
-    color: var(--highlight-three);
+    color: var(--color-three);
   }
   a:active,
   a:visited {

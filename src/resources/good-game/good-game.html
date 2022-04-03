@@ -1,8 +1,10 @@
-<template class="good-game">
+<template class="good-game"
+          style.to-view="{ '--good-game-scale-factor': scaleFactor }">
   <div class="good-game__content">
     <canvas class="good-game__canvas"
             ref="canvas"></canvas>
     <div class="good-game__overlay ${overlayVisible ? 'good-game__overlay--visible' : ''}">
+      <h1 class="good-game__title">${ texts.goodGame.vacationTitle }</h1>
       <button class="good-game__button"
               click.delegate="startGame()">
         ${ texts.goodGame.btnText }

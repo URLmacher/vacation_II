@@ -1,6 +1,7 @@
 export const texts = {
   goodGame: {
-    btnText: 'Start',
+    vacationTitle: 'Urlaubsantrag 2022',
+    btnText: 'Jetzt bestätigen',
     thanks: 'Danke'
   }
 };
