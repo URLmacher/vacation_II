@@ -4,11 +4,18 @@
     <canvas class="good-game__canvas"
             ref="canvas"></canvas>
     <div class="good-game__overlay ${overlayVisible ? 'good-game__overlay--visible' : ''}">
-      <h1 class="good-game__title">${ texts.goodGame.vacationTitle }</h1>
-      <button class="good-game__button"
-              click.delegate="startGame()">
-        ${ texts.goodGame.btnText }
-      </button>
+      <div class="good-game__overlay-wrap">
+        <div if.to-view="!firstRound"
+             class="good-game__stamp">
+          <h4>${ texts.goodGame.allConfirmed }</h4>
+        </div>
+        <h1 class="good-game__title"><span>${ texts.goodGame.vacationTitle } </span><span class="good-game__title--bright">${ texts.goodGame.vacationYear }</span></h1>
+        <button class="good-game__button"
+                click.delegate="startGame()">
+          <span if.to-view="firstRound">${ texts.goodGame.btnText }</span>
+          <span else>${ texts.goodGame.btnTextRoundTwo }</span>
+        </button>
+      </div>
     </div>
   </div>
 </template>

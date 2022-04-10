@@ -66,6 +66,7 @@ export class GoodGame {
   private requestId: number = 0;
 
   private overlayVisible = true;
+  private firstRound = true;
   private scaleFactor = 1;
   private texts = texts;
   private dates: string[] = dates;
@@ -144,7 +145,7 @@ export class GoodGame {
       x: this.canvas.width / 2,
       y: this.canvas.height / 2,
       size: this.canvas.width / 50,
-      speed: 8,
+      speed: 15,
       dx: 4,
       dy: 8,
       visible: true,
@@ -152,7 +153,7 @@ export class GoodGame {
 
     // Create paddle props
     const paddleHeight = this.canvas.height / 20;
-    const paddleWidth = this.canvas.width / 2;
+    const paddleWidth = this.canvas.width / 1.5;
     this.paddle = {
       x: this.canvas.width / 2 - paddleWidth / 2,
       y: this.canvas.height - paddleHeight,
@@ -232,6 +233,7 @@ export class GoodGame {
       this.ball.visible = false;
       this.paddle.visible = false;
       this.overlayVisible = true;
+      this.firstRound = false;
     }
   }
 
