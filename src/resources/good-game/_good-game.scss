@@ -74,8 +74,8 @@
   &__button {
     border: 2px solid var(--color-five);
     border-radius: var(--border-radius);
-    padding: calc(8px * var(--good-game-scale-factor)) calc(18px * var(--good-game-scale-factor));
-    font-size: calc(14px * var(--good-game-scale-factor));
+    padding: calc(14px * var(--good-game-scale-factor)) calc(20px * var(--good-game-scale-factor));
+    font-size: calc(16px * var(--good-game-scale-factor));
     background-color: var(--color-two);
     transition: background-color 0.3s linear;
     color: var(--color-five);

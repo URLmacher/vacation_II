@@ -90,7 +90,7 @@ export class GoodGame {
 
     this.updateSizes();
 
-    // Keyboard event handlers
+    // event handlers
     this.subscriptionManager.subscribeToDomEvent(window, 'keydown', (e) =>
       this.keyDownHandler(e as KeyboardEvent)
     );
@@ -99,6 +99,9 @@ export class GoodGame {
     );
     this.subscriptionManager.subscribeToDomEvent(window, 'mousemove', (e) =>
       this.mouseMoveHandler(e as MouseEvent)
+    );
+    this.subscriptionManager.subscribeToDomEvent(window, 'touchmove', (e) =>
+      this.touchMoveHandler(e as TouchEvent)
     );
     this.subscriptionManager.subscribeToResize(() => {
       this.updateSizes();
@@ -136,16 +139,17 @@ export class GoodGame {
     assertNotNullOrUndefined(this.canvas, 'canvas cannot be null or undefined');
     const { width } = this.element.getBoundingClientRect();
     const heightRatio = 1.2;
-    this.canvas.width = width / 2;
+    this.canvas.width = Math.max(360, (width / 2));
     this.canvas.height = this.canvas.width * heightRatio;
-    this.scaleFactor = width / 1280;
+    console.log(width);
+    this.scaleFactor = Math.max(0.6, (width / 1280));
 
     // Create ball props
     this.ball = {
       x: this.canvas.width / 2,
       y: this.canvas.height / 2,
       size: this.canvas.width / 50,
-      speed: 15,
+      speed: 13,
       dx: 4,
       dy: 8,
       visible: true,
@@ -355,6 +359,15 @@ export class GoodGame {
     this.ctx.fillStyle = this.paddle.visible ? EColors.Primary : EColors.Transparent;
     this.ctx.fill();
     this.ctx.closePath();
+  }
+
+  private touchMoveHandler(e: TouchEvent): void {
+    const mouseX = e.touches[0].clientX - (this.canvas?.getBoundingClientRect().left ?? 0);
+    const isInsideCourt = (): boolean =>
+      !!this.canvas && mouseX > 0 && mouseX < this.canvas.width;
+    if(isInsideCourt() && this.paddle) {
+      this.paddle.x = mouseX - this.paddle.w / 2;
+    }
   }
 
   private mouseMoveHandler(e: MouseEvent): void {
